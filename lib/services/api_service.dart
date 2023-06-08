@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+import 'package:toonflix/models/webtoon_Model.dart';
 
 class ApiService {
-  final String baseUrl = "https://webtoon-crawler.nomadcoders.workers.dev";
-  final String today = "today";
+  static const String baseUrl =
+      "https://webtoon-crawler.nomadcoders.workers.dev";
+  static const String today = "today";
 
-  void getTodaysToons() async {
+  static Future<List<WebtoonModel>> getTodaysToons() async {
+    List<WebtoonModel> webtoonInstances = [];
     final url = Uri.parse("$baseUrl/$today");
     //http.get이 반환하는 Future 타입
     //-> 미래에 받을 결과값을 알려주는 타입(미래에 <>안의 타입이 반환될것임)
@@ -13,8 +18,11 @@ class ApiService {
     //async함수 안에서만 await쓸 수 있음
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      print(response.body);
-      return;
+      final webtoons = jsonDecode(response.body);
+      for (var webtoon in webtoons) {
+        webtoonInstances.add(WebtoonModel.fromJson(webtoon));
+      }
+      return webtoonInstances;
     }
     throw Error();
   }
